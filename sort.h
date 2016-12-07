@@ -76,7 +76,7 @@ void Sort(const std::string& fileName, const uint32_t bufferSize, const std::str
 	{
 		std::cout << "Starting new threads..." << std::endl;
 		
-		semaphore sem;
+		Semaphore sem;
 		std::list<std::thread> workers;
 
 		for (size_t t = 0; t < MaxNumberOfThreads && (resultFiles.Size() >= 2); ++t)
@@ -86,15 +86,15 @@ void Sort(const std::string& fileName, const uint32_t bufferSize, const std::str
 			filesToMerge.second = resultFiles.PopBack();
 			
 			workers.push_back(std::thread([BufferForEachThread, filesToMerge, &tempDir, &sem, &resultFiles]() {
-				sem.increment();
+				sem.Increment();
 				Merge<T>(filesToMerge, tempDir, BufferForEachThread, resultFiles);
-				sem.decrement();
+				sem.Decrement();
 			}));
 
 			std::cout << "Thread " << workers.back().get_id() << " starts, files: " << filesToMerge.first << ", " << filesToMerge.second << std::endl;
 		}
 
-		sem.wait();
+		sem.Wait();
 		std::cout << "Threads finished work, remaining number of files to merge: " << resultFiles.Size() << std::endl;
 		std::for_each(workers.begin(), workers.end(), [](std::thread& t) { t.join(); });
 	}

@@ -65,33 +65,35 @@ std::string GetRandomFileName(const std::string& tmpDir)
 	return tmpName;
 }
 
-class semaphore
+class Semaphore
 {
-private:
-	std::mutex mutex_;
-	std::condition_variable condition_;
-	unsigned long count_;
-
 public:
-	semaphore() : count_()
-	{}
+	Semaphore() : m_count(0)	{}
 
-	void increment() {
-		std::unique_lock<decltype(mutex_)> lock(mutex_);
-		++count_;
+	void Increment() 
+	{
+		UniqueLock lock(m_mutex);
+		++m_count;
 	}
 
-	void decrement() {
-		std::unique_lock<decltype(mutex_)> lock(mutex_);
-		if (--count_ == 0)
-			condition_.notify_all();
+	void Decrement() {
+		UniqueLock lock(m_mutex);
+		if (--m_count == 0)
+			m_condition.notify_all();
 	}
 
-	void wait() {
-		std::unique_lock<decltype(mutex_)> lock(mutex_);
-		while (count_)
-			condition_.wait(lock);
+	void Wait() {
+		UniqueLock lock(m_mutex);
+		while (m_count)
+			m_condition.wait(lock);
 	}
+
+private:
+	std::mutex m_mutex;
+	std::condition_variable m_condition;
+	uint32_t m_count;
+	typedef std::unique_lock<decltype(m_mutex)> UniqueLock;
+
 };
 
 #endif // UTILS_H
