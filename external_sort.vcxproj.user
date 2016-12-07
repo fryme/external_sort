@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>--sort-file="F:\dev\bitbucket\sorting_problem\external_sort\Debug\t1.txt" --buffer-size=250102400 --temp-dir="F:\dev\bitbucket\sorting_problem\external_sort\Debug\temp"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>--sort-file="F:\dev\bitbucket\sorting_problem\external_sort\Release\t1.txt" --buffer-size=209715200 --temp-dir="F:\dev\bitbucket\sorting_problem\external_sort\Release\temp"</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
