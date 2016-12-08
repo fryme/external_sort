@@ -12,7 +12,7 @@ void GenerateFile(const std::string& fileName, const uint32_t bufferSize, const 
 
 	std::random_device r;
 	std::default_random_engine e1(r());
-	std::uniform_int_distribution<int> uniform_dist(0, 100);
+	std::uniform_int_distribution<int> uniform_dist(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
 
 	const int32_t numberOfValues = bytesToGenerate / sizeof(T);
 	for (int n = 0; n < numberOfValues; ++n)
