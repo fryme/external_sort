@@ -133,6 +133,8 @@ public:
 
 		if (!m_file.get())
 			throw std::runtime_error("Can't open file");
+
+		m_fileName = fileName;
 	}
 
 	size_t GetFileSize()
@@ -154,8 +156,9 @@ public:
 
 		if (m_verbose)
 		{
-			std::cout << std::endl << "Saving to file: " << Size() << " digits";
+			std::cout << std::endl << "Saving to file " << m_fileName << ": " << Size() << " digits" << std::endl;
 			std::for_each(Begin(), End(), [](int32_t value) { std::cout << value << " "; });
+			std::cout << std::endl << "Number of digits: " << Size() << " Bytes: " << Size() * sizeof(T) << std::endl;
 		}
 
 		size_t rc = std::fwrite(&m_buffer[0], sizeof(m_buffer[0]), m_buffer.size(), m_file.get());
@@ -166,17 +169,22 @@ public:
 
 	size_t Read()
 	{
-		size_t bytesReaded = std::fread(&m_buffer[0], sizeof(m_buffer[0]), m_buffer.size(), m_file.get());
-		Resize(bytesReaded);
+		size_t digitsRead = std::fread(&m_buffer[0], sizeof(m_buffer[0]), m_buffer.size(), m_file.get());
+		Resize(digitsRead);
 
 		if (m_verbose)
 		{
 			std::cout << "Read " << m_fileName.c_str() << ":" << std::endl;
 			for_each(m_buffer.begin(), m_buffer.end(), [](T value) { std::cout << value << " "; });
-			std::cout << std::endl << "Number of digits: " << Size() << " Bytes: " << bytesReaded << std::endl;
+			std::cout << std::endl << "Number of digits: " << Size() << " Bytes: " << digitsRead * sizeof(T) << std::endl;
 		}
 
-		return bytesReaded;
+		return digitsRead;
+	}
+
+	bool Seek(const int32_t offset)
+	{
+		return std::fseek(m_file.get(), offset, SEEK_CUR) == 0;
 	}
 
 	BufferIterator Begin()

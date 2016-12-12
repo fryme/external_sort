@@ -6,13 +6,14 @@
 template <typename T>
 void GenerateFile(const std::string& fileName, const uint32_t bufferSize, const uint32_t bytesToGenerate, bool verbose)
 {
-	FileBuffer<T> buffer(bufferSize, verbose);
+	FileBuffer<T> buffer(bufferSize / sizeof(T), verbose);
 	buffer.Open(fileName, "wb");
 	FileBufferIterator<T> it(buffer);
 
 	std::random_device r;
 	std::default_random_engine e1(r());
 	std::uniform_int_distribution<int> uniform_dist(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+	//std::uniform_int_distribution<int> uniform_dist(0, 100);
 
 	const int32_t numberOfValues = bytesToGenerate / sizeof(T);
 	for (int n = 0; n < numberOfValues; ++n)
@@ -22,29 +23,42 @@ void GenerateFile(const std::string& fileName, const uint32_t bufferSize, const 
 }
 
 template<typename T>
-void CheckSorted(const std::string& fileName, const uint32_t bufferSize, bool verbose = false)
+void CheckSorted(const std::string& fileName, const uint32_t bufferSizeInBytes, bool verbose = false)
 {
 	if (!IsFileExist(fileName))
 		throw std::runtime_error("File not exists");
-
-	FileBuffer<T> buffer(bufferSize, verbose);
+	
+	const size_t MaxNumberOfDigitsInBuffer = bufferSizeInBytes / sizeof(T);
+	
+	FileBuffer<T> buffer(MaxNumberOfDigitsInBuffer, verbose);
 	buffer.Open(fileName);
-	size_t bytesRead = buffer.Read();
+	
+	size_t totalNumberOfDigitsRead = 0;
+	size_t digitsRead = buffer.Read();
+	totalNumberOfDigitsRead += digitsRead;
 
 	bool isSorted = true;
-	while (bytesRead != 0)
+	while (digitsRead != 0)
 	{
-		if (bytesRead < bufferSize)
-			buffer.Resize(bytesRead);
+		if (digitsRead < MaxNumberOfDigitsInBuffer)
+			buffer.Resize(digitsRead);
 
 		isSorted = std::is_sorted(buffer.Begin(), buffer.End());
 
 		if (!isSorted)
 			break;
+		
+		if (digitsRead > 1)
+		{
+			buffer.Seek(-sizeof(T));
+			totalNumberOfDigitsRead -= 1; // 
+		}
 
-		bytesRead = buffer.Read();
+		digitsRead = buffer.Read();
+		totalNumberOfDigitsRead += digitsRead;
 	}
 
+	std::cout << "Total number of digits read: " << totalNumberOfDigitsRead << std::endl;
 	std::cout << "File is " << (isSorted ? "sorted" : "not sorted") << std::endl;
 }
 
